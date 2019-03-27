@@ -1,5 +1,6 @@
-# Aidon AMS meter parser, specifically for OBIS messages used by Hafslund meters
+# Aidon AMS meter parser, specifically for OBIS messages used by Hafslund/Lyse meters
 # skagmo.com, 2019
+# Profitbase Focus AS, 2019
 # Needs crcmod (sudo pip install crcmod)
 
 import struct, crcmod
@@ -15,7 +16,9 @@ ESCAPED = 2
 
 # Number of objects in known frames
 OBJECTS_2P5SEC = 1
+OBJECTS_10SEC1PH = 9
 OBJECTS_10SEC = 12
+OBJECTS_1HOUR1PH = 14
 OBJECTS_1HOUR = 17
 
 # OBIS types
@@ -51,7 +54,7 @@ class aidon:
 		fields = {}
 
 		# If number of objects doesn't match any known type, don't continue
-		if not (object_count in [OBJECTS_2P5SEC, OBJECTS_10SEC, OBJECTS_1HOUR]):
+		if not (object_count in [OBJECTS_2P5SEC, OBJECTS_10SEC1PH, OBJECTS_10SEC, OBJECTS_1HOUR1PH, OBJECTS_1HOUR]):
 			return
 
 		# Fill array with objects
@@ -88,7 +91,7 @@ class aidon:
 		if (len(data) == OBJECTS_2P5SEC):
 			fields['p_act_in'] = data[0]
 		
-		elif (len(data) == OBJECTS_10SEC) or (len(data) == OBJECTS_1HOUR):
+		elif (len(data) >= OBJECTS_10SECPH) :
 			fields['version_id'] = data[0]
 			fields['meter_id'] = data[1]
 			fields['meter_type'] = data[2]
@@ -96,17 +99,29 @@ class aidon:
 			fields['p_act_out'] = data[4]
 			fields['p_react_in'] = data[5]
 			fields['p_react_out'] = data[6]
-			fields['il1'] = data[7] / 10.0
-			fields['il2'] = data[8] / 10.0
-			fields['ul1'] = data[9] / 10.0
-			fields['ul2'] = data[10] / 10.0
-			fields['ul3'] = data[11] / 10.0
+			
+			if (data[2] == '6515') and (data[0][:5] == 'AIDON') :
+				fields['il1'] = data[7] / 10.0
+                                fields['ul1'] = data[8] / 10.0
 
-			if (len(data) == OBJECTS_1HOUR):
-				fields['energy_act_in'] = data[13] / 100.0
-				fields['energy_act_out'] = data[14] / 100.0
-				fields['energy_react_in'] = data[15] / 100.0
-				fields['energy_react_out'] = data[16] / 100.0
+                                if (len(data) == OBJECTS_1HOUR1PH):
+                                        fields['energy_act_in'] = data[10] / 100.0
+                                        fields['energy_act_out'] = data[11] / 100.0
+                                        fields['energy_react_in'] = data[12] / 100.0
+                                        fields['energy_react_out'] = data[13] / 100.0		
+			
+			elif (data[0][:5] == 'AIDON') :
+				fields['il1'] = data[7] / 10.0
+				fields['il2'] = data[8] / 10.0
+				fields['ul1'] = data[9] / 10.0
+				fields['ul2'] = data[10] / 10.0
+				fields['ul3'] = data[11] / 10.0
+
+				if (len(data) == OBJECTS_1HOUR):
+					fields['energy_act_in'] = data[13] / 100.0
+					fields['energy_act_out'] = data[14] / 100.0
+					fields['energy_react_in'] = data[15] / 100.0
+					fields['energy_react_out'] = data[16] / 100.0
 
 		self.callback(fields)
 
