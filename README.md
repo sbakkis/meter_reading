@@ -4,7 +4,7 @@ Use with an M-Bus dongle such as [this one](https://www.aliexpress.com/item/USB-
 
 ### aidon_obis.py
 A class for decoding HDLC and extracting OBIS fields. Requires python module crcmod (sudo pip install crcmod).
-*NB: This is not a full COSEM parser, as the number of OBIS fields and their sequence is assumed to be as on a Hafslund meter.*
+*NB: This is not a full COSEM parser, as the number of OBIS fields and their sequence is assumed to be as on a Hafslund or Lyse meter.*
 
 ### aidon_test.py
 Test output. <br/>
