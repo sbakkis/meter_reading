@@ -91,7 +91,7 @@ class aidon:
 		if (len(data) == OBJECTS_2P5SEC):
 			fields['p_act_in'] = data[0]
 		
-		elif (len(data) >= OBJECTS_10SECPH) :
+		elif (len(data) >= OBJECTS_10SEC1PH) :
 			fields['version_id'] = data[0]
 			fields['meter_id'] = data[1]
 			fields['meter_type'] = data[2]
